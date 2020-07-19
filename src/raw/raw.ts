@@ -1,4 +1,5 @@
 import { memoize } from "lodash"
+import { v4 as uuid } from "uuid"
 
 import emCreateModule from "./wasm/raw.js"
 import wasmBinaryUrl from "./wasm/raw.wasm.bin"
@@ -27,7 +28,7 @@ const getModule = memoize(async () => {
 export async function extractThumbnail(image: File | Blob): Promise<Blob> {
   const module = await getModule()
 
-  const tmp = `/tmp/${Date.now()}`
+  const tmp = `/tmp/${uuid()}`
   const imagePath = `${tmp}/raw`
   const thumbPath = `${tmp}/thumb`
   module.FS.mkdir(tmp)
