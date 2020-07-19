@@ -1,0 +1,5 @@
+--- dcraw.c	2018-06-01 23:20:44.000000000 +0200
++++ dcraw.c	2020-07-19 10:35:20.853023659 +0200
+@@ -10084 +10084 @@
+-int CLASS main (int argc, const char **argv)
++int CLASS dcraw_main (int argc, const char **argv)
