@@ -1,5 +1,5 @@
 {
-  "name": "dcraw-wasm-test",
+  "name": "dcraw-wasm-poc",
   "version": "0.0.0",
   "main": "src/index.html",
   "author": "Marek Skrajnowski <mskrajnowski@users.noreply.github.com>",

@@ -63,7 +63,7 @@ const App: FunctionComponent = () => {
 
   return (
     <div>
-      <h1>dcraw-wasm-test</h1>
+      <h1>dcraw-wasm-poc</h1>
       <p>
         <input
           type="file"
