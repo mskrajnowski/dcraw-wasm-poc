@@ -36,7 +36,7 @@ int extract_thumbnail(const char *raw_path, const char *thumb_path)
   ifp = fopen(raw_path, "rb");
   if (!ifp)
   {
-    fprintf(stderr, "Failed to open %s: %s", raw_path, strerror(errno));
+    fprintf(stderr, "Failed to open %s: %s\n", raw_path, strerror(errno));
     err = EXIT_FAILURE;
     goto cleanup;
   }
@@ -44,7 +44,7 @@ int extract_thumbnail(const char *raw_path, const char *thumb_path)
   ofp = fopen(thumb_path, "wb");
   if (!ofp)
   {
-    fprintf(stderr, "Failed to open %s: %s", thumb_path, strerror(errno));
+    fprintf(stderr, "Failed to open %s: %s\n", thumb_path, strerror(errno));
     err = EXIT_FAILURE;
     goto cleanup;
   }
@@ -54,7 +54,7 @@ int extract_thumbnail(const char *raw_path, const char *thumb_path)
 
   if (!thumb_offset)
   {
-    fprintf(stderr, "Thumbnail not found in %s", thumb_path);
+    fprintf(stderr, "Thumbnail not found in %s\n", thumb_path);
     err = EXIT_FAILURE;
     goto cleanup;
   }
