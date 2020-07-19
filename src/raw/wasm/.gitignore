@@ -3,6 +3,7 @@ dcraw.c
 em_sdk
 em_sdk.*
 
+raw
 raw.js
 raw.wasm.bin
 
