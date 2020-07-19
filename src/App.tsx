@@ -9,6 +9,7 @@ import React, {
 import { hot } from "react-hot-loader"
 import { v4 as uuid } from "uuid"
 
+import { resizeImage } from "./image"
 import { extractThumbnail } from "./raw/raw"
 
 interface ImageFile {
@@ -26,21 +27,28 @@ const App: FunctionComponent = () => {
     async (event: ChangeEvent<HTMLInputElement>) => {
       const input = event.target
       const files = Array.from(input.files || [])
-
-      const images = await Promise.all(
-        files.map(
-          async (file): Promise<ImageFile> => {
-            const preview =
-              file.type === "image/jpeg" ? file : await extractThumbnail(file)
-            const previewUrl = URL.createObjectURL(preview)
-            previewUrls.current.push(previewUrl)
-            return { id: uuid(), file, preview, previewUrl }
-          },
-        ),
-      )
-
-      setImages(current => [...current, ...images])
       input.value = ""
+
+      for (const file of files) {
+        try {
+          const jpeg =
+            file.type === "image/jpeg" ? file : await extractThumbnail(file)
+
+          const preview = await resizeImage(jpeg, {
+            maxWidth: 512,
+            maxHeight: 512,
+          })
+          const previewUrl = URL.createObjectURL(preview)
+
+          previewUrls.current.push(previewUrl)
+          setImages(current => [
+            ...current,
+            { id: uuid(), file, preview, previewUrl },
+          ])
+        } catch (error) {
+          console.error(`Couldn't handle ${file.name}`, error)
+        }
+      }
     },
     [],
   )
