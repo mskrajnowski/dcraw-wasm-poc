@@ -10,6 +10,7 @@ module_em_settings = \
 	-s "EXTRA_EXPORTED_RUNTIME_METHODS=['FS', 'ccall', 'cwrap', 'getValue']"
 
 dcraw_ccflags = \
+	-O4 \
 	-std=c99 \
 	-lm \
 	-DNODEPS
@@ -32,10 +33,6 @@ $(module_files): dcraw.c $(module).c em_sdk
 
 	# avoid parcel's .wasm loader by using .bin
 	mv $(module).wasm $(module).wasm.bin
-
-$(module):
-	gcc -o $(module) $(module).c dcraw.c \
-		$(dcraw_ccflags)
 
 clean_module:
 	rm -f $(module_files)
