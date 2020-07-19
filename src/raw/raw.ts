@@ -27,22 +27,29 @@ const getModule = memoize(async () => {
 export async function extractThumbnail(image: File | Blob): Promise<Blob> {
   const module = await getModule()
 
-  const imagePath = "/tmp/raw"
-  const thumbPath = "/tmp/thumb"
+  const tmp = `/tmp/${Date.now()}`
+  const imagePath = `${tmp}/raw`
+  const thumbPath = `${tmp}/thumb`
+  module.FS.mkdir(tmp)
   module.FS.writeFile(imagePath, new Uint8Array(await image.arrayBuffer()))
+  module.FS.writeFile(thumbPath, "")
 
-  const errorCode: number = module.ccall(
-    "extract_thumbnail",
-    "number",
-    ["string", "string"],
-    [imagePath, thumbPath],
-  )
+  try {
+    const errorCode: number = module.ccall(
+      "extract_thumbnail",
+      "number",
+      ["string", "string"],
+      [imagePath, thumbPath],
+    )
 
-  if (errorCode) {
-    throw Error("Failed to extract thumbnail")
+    if (errorCode) {
+      throw Error("Failed to extract thumbnail")
+    }
+
+    return new Blob([module.FS.readFile(thumbPath)], { type: "image/jpeg" })
+  } finally {
+    module.FS.unlink(imagePath)
+    module.FS.unlink(thumbPath)
+    module.FS.rmdir(tmp)
   }
-
-  return new Blob([module.FS.readFile(thumbPath)], {
-    type: "image/jpeg",
-  })
 }
