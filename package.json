@@ -8,6 +8,7 @@
   "scripts": {
     "prestart": "cd src/raw/wasm && make",
     "start": "parcel serve src/index.html --port 3000",
+    "prebuild": "cd src/raw/wasm && make",
     "build": "parcel build src/index.html",
     "eslint": "eslint **/*.{js,jsx,ts,tsx}"
   },
