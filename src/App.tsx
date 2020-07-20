@@ -67,7 +67,7 @@ const App: FunctionComponent = () => {
       <p>
         <input
           type="file"
-          accept="image/jpeg,.NEF,.ORF"
+          accept="image/jpeg,.NEF,.ORF,.ARW,.CR2"
           multiple
           onChange={handleFileChanged}
         />
