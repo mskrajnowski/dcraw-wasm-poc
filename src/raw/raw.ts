@@ -25,11 +25,12 @@ const getModule = memoize(async () => {
 })
 
 export async function extractThumbnail(image: File | Blob): Promise<Blob> {
+  const imageData = new Uint8Array(await image.arrayBuffer())
   const module = await getModule()
 
   // write image data to module memory
   const imageBuffer = module._malloc(image.size)
-  module.HEAPU8.set(new Uint8Array(await image.arrayBuffer()), imageBuffer)
+  module.HEAPU8.set(imageData, imageBuffer)
 
   // prepare output pointers
   const thumbnailBufferPointer = module._malloc(4)
