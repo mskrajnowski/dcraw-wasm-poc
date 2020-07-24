@@ -1,5 +1,4 @@
 import { memoize } from "lodash"
-import { v4 as uuid } from "uuid"
 
 import emCreateModule from "./wasm/raw.js"
 import wasmBinaryUrl from "./wasm/raw.wasm.bin"
@@ -28,29 +27,58 @@ const getModule = memoize(async () => {
 export async function extractThumbnail(image: File | Blob): Promise<Blob> {
   const module = await getModule()
 
-  const tmp = `/tmp/${uuid()}`
-  const imagePath = `${tmp}/raw`
-  const thumbPath = `${tmp}/thumb`
-  module.FS.mkdir(tmp)
-  module.FS.writeFile(imagePath, new Uint8Array(await image.arrayBuffer()))
-  module.FS.writeFile(thumbPath, "")
+  // write image data to module memory
+  const imageBuffer = module._malloc(image.size)
+  module.HEAPU8.set(new Uint8Array(await image.arrayBuffer()), imageBuffer)
+
+  // prepare output pointers
+  const thumbnailBufferPointer = module._malloc(4)
+  const thumbnailSizePointer = module._malloc(4)
+  module.setValue(thumbnailBufferPointer, 0, "*")
+  module.setValue(thumbnailBufferPointer, 0, "*")
 
   try {
     const errorCode: number = module.ccall(
+      // int extract_thumbnail(
+      //   const char *raw_data,
+      //   size_t raw_size,
+      //   char **thumb_data,
+      //   size_t *thumb_size
+      // )
       "extract_thumbnail",
       "number",
-      ["string", "string"],
-      [imagePath, thumbPath],
+      ["number", "number", "number", "number"],
+      [imageBuffer, image.size, thumbnailBufferPointer, thumbnailSizePointer],
     )
 
     if (errorCode) {
       throw Error("Failed to extract thumbnail")
     }
 
-    return new Blob([module.FS.readFile(thumbPath)], { type: "image/jpeg" })
+    // read outputs
+    const thumbnailBuffer = module.getValue(thumbnailBufferPointer, "*")
+    const thumbnailSize = module.getValue(thumbnailSizePointer, "i32")
+
+    // read the thumbnail
+    const thumbnail = new Blob(
+      [
+        module.HEAPU8.subarray(
+          thumbnailBuffer,
+          thumbnailBuffer + thumbnailSize,
+        ),
+      ],
+      { type: "image/jpeg" },
+    )
+
+    return thumbnail
   } finally {
-    module.FS.unlink(imagePath)
-    module.FS.unlink(thumbPath)
-    module.FS.rmdir(tmp)
+    const thumbnailBuffer = module.getValue(thumbnailBufferPointer, "*")
+    if (thumbnailBuffer) {
+      module._free(thumbnailBuffer)
+    }
+
+    module._free(thumbnailSizePointer)
+    module._free(thumbnailBufferPointer)
+    module._free(imageBuffer)
   }
 }

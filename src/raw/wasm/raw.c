@@ -23,7 +23,11 @@ int main(int argc, const char **argv)
 }
 
 EMSCRIPTEN_KEEPALIVE
-int extract_thumbnail(const char *raw_path, const char *thumb_path)
+int extract_thumbnail(
+    const char *raw_data,
+    size_t raw_size,
+    char **thumb_data,
+    size_t *thumb_size)
 {
   int err = EXIT_SUCCESS;
 
@@ -33,18 +37,18 @@ int extract_thumbnail(const char *raw_path, const char *thumb_path)
   oprof = 0;
   meta_data = 0;
 
-  ifp = fopen(raw_path, "rb");
+  ifp = fmemopen(raw_data, raw_size, "rb");
   if (!ifp)
   {
-    fprintf(stderr, "Failed to open %s: %s\n", raw_path, strerror(errno));
+    fprintf(stderr, "Failed to open raw data: %s\n", strerror(errno));
     err = EXIT_FAILURE;
     goto cleanup;
   }
 
-  ofp = fopen(thumb_path, "wb");
+  ofp = open_memstream(thumb_data, thumb_size);
   if (!ofp)
   {
-    fprintf(stderr, "Failed to open %s: %s\n", thumb_path, strerror(errno));
+    fprintf(stderr, "Failed to open thumbnail data: %s\n", strerror(errno));
     err = EXIT_FAILURE;
     goto cleanup;
   }
@@ -54,7 +58,7 @@ int extract_thumbnail(const char *raw_path, const char *thumb_path)
 
   if (!thumb_offset)
   {
-    fprintf(stderr, "Thumbnail not found in %s\n", thumb_path);
+    fprintf(stderr, "Thumbnail not found in raw data\n");
     err = EXIT_FAILURE;
     goto cleanup;
   }

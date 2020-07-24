@@ -7,11 +7,11 @@ module_em_settings = \
 	-s EXPORT_NAME=createModule \
 	-s EXPORT_ES6=1 \
 	-s USE_ES6_IMPORT_META=0 \
-	-s "EXTRA_EXPORTED_RUNTIME_METHODS=['FS', 'ccall', 'cwrap', 'getValue']"
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s "EXTRA_EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'getValue', 'setValue']"
 
 dcraw_ccflags = \
-	-O4 \
-	-std=c99 \
+	-std=gnu99 \
 	-lm \
 	-DNODEPS
 
@@ -19,7 +19,7 @@ dcraw_ccflags = \
 em_sdk_version=1.39.19
 em_sdk_url=https://github.com/emscripten-core/emsdk/archive/$(em_sdk_version).zip
 
-build: clean_module $(module_files)
+build: $(module_files)
 clean: clean_module clean_dcraw clean_em_sdk
 .PHONY: build clean clean_module clean_dcraw clean_em_sdk
 
