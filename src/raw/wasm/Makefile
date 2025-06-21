@@ -11,9 +11,14 @@ module_em_settings = \
 	-s "EXTRA_EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'getValue', 'setValue']"
 
 dcraw_ccflags = \
+	-O2 \
 	-std=gnu99 \
 	-lm \
 	-DNODEPS
+
+stb_headers = stb_image.h stb_image_write.h stb_image_resize.h
+stb_commit = b42009b
+stb_url = https://raw.githubusercontent.com/nothings/stb/$(stb_commit)
 
 # https://github.com/emscripten-core/emsdk/tree/1.39.19
 em_sdk_version=1.39.19
@@ -21,7 +26,7 @@ em_sdk_url=https://github.com/emscripten-core/emsdk/archive/$(em_sdk_version).zi
 
 build: $(module_files)
 clean: clean_module clean_dcraw clean_em_sdk
-.PHONY: build clean clean_module clean_dcraw clean_em_sdk
+.PHONY: build clean clean_module clean_dcraw clean_em_sdk stb_headers
 
 # module ----------------------------------------------------------------------
 $(module_files): SHELL=bash
@@ -44,6 +49,12 @@ dcraw.c:
 
 clean_dcraw:
 	rm -f dcraw.c
+
+# stb libs --------------------------------------------------------------------
+stb_headers: $(stb_headers)
+
+$(stb_headers):
+	wget -O "$@" "$(stb_url)/$@"
 
 # em_sdk ----------------------------------------------------------------------
 em_sdk:

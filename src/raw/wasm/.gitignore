@@ -1,5 +1,7 @@
 dcraw.c
 
+stb_*.h
+
 em_sdk
 em_sdk.*
 

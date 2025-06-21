@@ -10,7 +10,7 @@ import { hot } from "react-hot-loader"
 import { v4 as uuid } from "uuid"
 
 import { resizeImage } from "./image"
-import { extractThumbnail } from "./raw/raw"
+import { extractThumbnailResized } from "./raw/raw"
 
 interface ImageFile {
   id: string
@@ -31,13 +31,12 @@ const App: FunctionComponent = () => {
 
       for (const file of files) {
         try {
-          const jpeg =
-            file.type === "image/jpeg" ? file : await extractThumbnail(file)
+          const previewSize = { maxWidth: 512, maxHeight: 512 }
+          const preview =
+            file.type === "image/jpeg"
+              ? await resizeImage(file, previewSize)
+              : await extractThumbnailResized(file, previewSize)
 
-          const preview = await resizeImage(jpeg, {
-            maxWidth: 512,
-            maxHeight: 512,
-          })
           const previewUrl = URL.createObjectURL(preview)
 
           previewUrls.current.push(previewUrl)
